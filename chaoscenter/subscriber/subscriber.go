@@ -137,7 +137,7 @@ func init() {
 
 func main() {
 	stopCh := make(chan struct{})
-	sigCh := make(chan os.Signal)
+	sigCh := make(chan os.Signal, 1)
 	stream := make(chan types.WorkflowEvent, 10)
 
 	subscriberGraphql := graphql.NewSubscriberGql()
