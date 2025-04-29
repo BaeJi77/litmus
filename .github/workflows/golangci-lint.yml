@@ -1,0 +1,39 @@
+name: golangci-lint
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  GO_VERSION: 1.22
+  GOLANGCI_LINT_VERSION: v1.59.1
+
+jobs:
+  golangci:
+    name: lint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project:
+          - chaoscenter/authentication
+          - chaoscenter/event-tracker
+          - chaoscenter/graphql/server
+          - chaoscenter/subscriber
+          - chaoscenter/upgrade-agents/control-plane
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: golangci-lint install
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin ${{ env.GOLANGCI_LINT_VERSION}}
+      - name: run golangci-lint
+        run: |
+          cd ${{ matrix.project }}
+          golangci-lint run --config ${{ github.workspace }}/.golangci.yml
